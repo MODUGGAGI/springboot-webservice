@@ -28,14 +28,31 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mustache'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.mariadb.jdbc:mariadb-java-client'
+    implementation 'org.hamcrest:hamcrest:2.2'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    // --- 이 부분 추가 ---
+    // testRuntimeClasspath에서 byte-buddy-agent jar 파일을 찾아서 javaagent로 설정
+    def byteBuddyAgentJar = configurations.testRuntimeClasspath.files.find { it.name.startsWith("byte-buddy-agent") }
+
+    if (byteBuddyAgentJar) {
+        jvmArgs += "-javaagent:${byteBuddyAgentJar.absolutePath}"
+        println "Byte Buddy agent added to JVM args for tests: ${byteBuddyAgentJar.absolutePath}" // 확인용 로그
+    } else {
+        // 에이전트를 찾지 못했을 경우 경고 또는 에러 처리
+        logger.warn("WARNING: byte-buddy-agent.jar not found in testRuntimeClasspath. Mockito inline mocking might not work as expected or show warnings.")
+        // 또는 필요시 빌드 실패 처리:
+        // throw new GradleException("Could not find byte-buddy-agent.jar in testRuntimeClasspath. Required for Mockito inline mock maker.")
+    }
+    // --- 추가 끝 ---
 }
