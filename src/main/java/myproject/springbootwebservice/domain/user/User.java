@@ -9,6 +9,7 @@ import myproject.springbootwebservice.domain.BaseTimeEntity;
 @Getter
 @NoArgsConstructor
 @Entity
+@Table(name = "`user`")
 public class User extends BaseTimeEntity {
 
     @Id
