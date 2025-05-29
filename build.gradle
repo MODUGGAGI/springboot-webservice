@@ -62,3 +62,9 @@ tasks.named('test') {
     }
     // --- 추가 끝 ---
 }
+
+tasks.withType(JavaCompile) {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
